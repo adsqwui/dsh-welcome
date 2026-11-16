@@ -1,0 +1,8 @@
+# Set your name in the profile's cordis.patch.yml instead of here, so updates keep it:
+#   - id: dsh-welcome
+#     config:
+#       name: Alex
+- insert:
+    - id: dsh-welcome
+      name: dsh-welcome
+      config: {}
