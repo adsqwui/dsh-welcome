@@ -66,9 +66,11 @@ window.__ModuleLoader__.load({
     // The headline and Preview badge are hidden only while this component is mounted.
     // These selectors follow the Harness 0.2.2 hero markup and may need updating after a redesign.
     const css = `
-      [data-conversation-content] [class*="fishHitbox"]:has([data-dsh-welcome]) { display: contents; }
+      [data-conversation-content] [class*="headline"]:has([data-dsh-welcome]) { display: flex !important; }
+      [data-conversation-content] [class*="fishHitbox"]:has([data-dsh-welcome]),
+      [data-conversation-content] [class$="_fish"]:has([data-dsh-welcome]) { display: contents !important; }
       [data-conversation-content] [class*="fishHitbox"]:has([data-dsh-welcome]) + [class*="titleGroup"] { display: none; }
-      [data-dsh-welcome] { text-align: center; white-space: normal; overflow-wrap: anywhere; }
+      [data-dsh-welcome] { display: inline !important; visibility: visible !important; text-align: center; white-space: normal; overflow-wrap: anywhere; }
     `;
     return {
       inject: ['slots', 'locale', 'connection'],
