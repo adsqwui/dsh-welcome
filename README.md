@@ -16,15 +16,18 @@ In DSH open **Plugin Manager**, install from the cloned folder and enable it.
 
 ## Set your name
 
-Add this to your profile's `cordis.patch.yml` (on macOS Desktop: `~/.dsh/profiles/desktop/cordis.patch.yml`) and restart Desktop:
+Open **Plugins**, then the plugin's page. Type a name in **Name in the greeting**, check the preview under the field and press **Save**. The next time the blank chat screen opens it uses the new name; no restart needed. Clear the field and save to go back to greetings without a name. Names longer than 40 characters are refused, and extra spaces and control characters are dropped.
+
+DSH stores the value in your profile's `cordis.patch.yml` (on macOS Desktop: `~/.dsh/profiles/desktop/cordis.patch.yml`), not in the plugin folder, so `git pull` never overwrites it. You can also set it there by hand:
 
 ```yaml
 - id: dsh-welcome
+  name: dsh-welcome
   config:
     name: Alex
 ```
 
-Keeping it in the profile rather than in the plugin's own patch means `git pull` never overwrites it. Names are trimmed to 40 characters and control characters are stripped.
+The settings card uses the standard DSH settings form and needs DSH 0.2.2 or later. On a Host without it the greeting still works and reads the name from the profile.
 
 ## Compatibility
 
