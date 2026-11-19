@@ -1,10 +1,34 @@
-# dsh-welcome
+<p align="center">
+  <img src="docs/banner.jpg" alt="dsh-welcome: a greeting with your name on the blank chat screen" width="100%">
+</p>
 
-A DeepSeek Harness plugin that replaces the logo, headline and Preview badge on the blank chat screen with a random greeting. Set a name and the greeting uses it ("Welcome back, Alex"). Without one you get the plain version ("Welcome back").
+<p align="center">
+  <a href="https://github.com/adsqwui/dsh-welcome/actions/workflows/test.yml"><img alt="tests" src="https://github.com/adsqwui/dsh-welcome/actions/workflows/test.yml/badge.svg"></a>
+  <img alt="DeepSeek Harness 0.2.x" src="https://img.shields.io/badge/DeepSeek%20Harness-0.2.x-4d6bfe">
+  <img alt="8 languages" src="https://img.shields.io/badge/languages-8-ff9f43">
+  <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-0-blue">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/adsqwui/dsh-welcome"></a>
+  <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen"></a>
+</p>
 
-Five greetings in eight interface languages: Russian, English, Chinese, Japanese, Spanish, French, German and Brazilian Portuguese. Other languages follow Harness's fallback chain. A greeting is picked when the screen mounts and stays the same while you type. Switching the interface language translates it in place.
+<p align="center">
+  A small <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness</a> plugin that greets you by name every time you open a new chat.
+</p>
 
-It changes nothing else. Models, messages, credentials and session history are left alone.
+---
+
+<p align="center">
+  <img src="docs/screenshot-home.png" alt="The blank chat screen saying Hello, Alex" width="90%">
+</p>
+
+## Features
+
+- **A greeting instead of the logo.** The blank chat screen shows one of five greetings in place of the logo, headline and Preview badge.
+- **Your name, if you want it.** "Welcome back, Alex" with a name, "Welcome back" without one.
+- **Eight languages.** Russian, English, Chinese, Japanese, Spanish, French, German and Brazilian Portuguese. Other interface languages follow DSH's fallback chain.
+- **Stable while you type.** A greeting is picked when the screen opens and stays put. Switching the interface language translates it in place.
+- **Settings in Plugins.** Change the name on the plugin's page with a live preview. Saved changes show up on the next blank chat, no restart.
+- **Touches nothing else.** Models, messages, credentials and session history are left alone. Turn the plugin off and the stock screen is back.
 
 ## Install
 
@@ -12,11 +36,17 @@ It changes nothing else. Models, messages, credentials and session history are l
 git clone https://github.com/adsqwui/dsh-welcome.git
 ```
 
-In DSH open **Plugin Manager**, install from the cloned folder and enable it.
+In DSH open **Plugins → Add plugin**, enter the absolute path of the cloned folder, install and enable it. To update later, `git pull` in the folder and restart Desktop.
 
 ## Set your name
 
-Open **Plugins**, then the plugin's page. Type a name in **Name in the greeting**, check the preview under the field and press **Save**. The next time the blank chat screen opens it uses the new name; no restart needed. Clear the field and save to go back to greetings without a name. Names longer than 40 characters are refused, and extra spaces and control characters are dropped.
+Open **Plugins**, then the **Welcome greeting** page. Type a name, check the preview and press **Save**.
+
+<p align="center">
+  <img src="docs/screenshot-settings.png" alt="The Name in the greeting setting with a live preview" width="90%">
+</p>
+
+The next blank chat uses the new name. Clear the field and save to go back to greetings without a name. Names longer than 40 characters are refused; extra spaces and control characters are dropped.
 
 DSH stores the value in your profile's `cordis.patch.yml` (on macOS Desktop: `~/.dsh/profiles/desktop/cordis.patch.yml`), not in the plugin folder, so `git pull` never overwrites it. You can also set it there by hand:
 
@@ -27,18 +57,32 @@ DSH stores the value in your profile's `cordis.patch.yml` (on macOS Desktop: `~/
     name: Alex
 ```
 
-The settings card uses the standard DSH settings form and needs DSH 0.2.2 or later. On a Host without it the greeting still works and reads the name from the profile.
+## How it works
 
-## Compatibility
+| Part | What it does |
+|---|---|
+| `index.js` | Declares `Config.name` as a volatile setting, which is what puts the field on the Plugins page and lets it change without a restart |
+| `host.js` | Serves the current, cleaned name over a small RPC route |
+| `client.js` | Renders the greeting through the `conversation.hero.brand.mark` slot and the settings card through `plugins.bundle.config`, using DSH's own `SettingsForm` controls |
 
-The plugin renders through the documented `conversation.hero.brand.mark` slot, so it keeps working across updates. The CSS that hides the stock headline matches the Harness 0.2.2 hero markup by class-name fragments. If a future redesign changes that markup, the greeting still shows, but the stock headline may show next to it until the selectors in `client.js` are updated.
+If the settings service or its form controls are missing, only the greeting registers and it still reads the name from the profile.
 
-## Tests
+The CSS that hides the stock headline matches the DSH 0.2.2 hero markup by class-name fragments. If a future redesign changes that markup, the greeting still shows, but the stock headline may appear next to it until the selectors in `client.js` are updated.
+
+## Development
 
 ```bash
 npm test
 ```
 
+The tests load `client.js` the way the DSH module loader does, with fake React, slots and settings services, and check every language, the name rules, the settings card and the Host route. CI runs them on Node 22 and 24 on Linux and macOS.
+
+Want another language? Add a block to `dictionaries` and `settings` in `client.js` and its code to the language list in `tests/welcome.test.js`; the tests then tell you if a key is missing.
+
+## Contributing
+
+Pull requests are welcome, especially new languages and greetings. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
-MIT, see [LICENSE](LICENSE). The speech-bubble icon is original artwork made for this plugin.
+[MIT](LICENSE). The speech-bubble icon is original artwork made for this plugin. Not affiliated with DeepSeek.
