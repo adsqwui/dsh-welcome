@@ -98,7 +98,7 @@ test('without the settings service or primitives only the greeting registers', (
 test('the settings card edits the dsh-welcome namespace on the bundle page', () => {
   const { ui, made } = fakePrimitives();
   const { seen } = loadClient({ ui, configForms: servedForms() });
-  assert.equal(seen.card.meta.key, 'dsh-welcome');
+  assert.equal(seen.card.meta.key, '@adsqwui/dsh-welcome');
   assert.equal(seen.card.meta.locale, 'dsh-welcome');
   assert.deepEqual(made.scope, { ns: 'dsh-welcome' });
   const face = seen.card.meta.inject();

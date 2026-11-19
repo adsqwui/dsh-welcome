@@ -1,5 +1,5 @@
 # The name is edited on the plugin's page under Plugins; DSH saves it in the profile, not here.
 - insert:
     - id: dsh-welcome
-      name: dsh-welcome
+      name: '@adsqwui/dsh-welcome'
       config: {}

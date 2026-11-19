@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'dsh-welcome',
+  id: '@adsqwui/dsh-welcome',
   factory(require) {
     const React = require('react');
     const keys = ['hello', 'welcome', 'return', 'ready', 'good'];
@@ -158,7 +158,7 @@ window.__ModuleLoader__.load({
           scope.effect(() => () => model.dispose());
           const store = model.bind(() => ({ ...model.shell(), field: model.field('name') }));
           scope.effect(() => scope.configForms.whileServed(['dsh-welcome'], () => scope.slots.inject('plugins.bundle.config', () => scope.slots.register({
-            name: 'plugins.bundle.config', key: 'dsh-welcome', locale: 'dsh-welcome',
+            name: 'plugins.bundle.config', key: '@adsqwui/dsh-welcome', locale: 'dsh-welcome',
             inject: () => ({ hooks: { welcomeSettings: store }, ...model.actions() }),
           }, WelcomeSettings))));
         }
