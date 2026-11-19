@@ -62,7 +62,59 @@ window.__ModuleLoader__.load({
         good: 'Olá, {name}', 'good.plain': 'Olá',
       },
     };
+    // Copy for the settings card on the Plugins page; registered in the same namespace as the greetings.
+    const settings = {
+      ru: ['Имя в приветствии', 'Оставьте пустым, чтобы приветствовать без имени.', 'Например, Алекс', 'Не длиннее 40 символов', 'Так это будет выглядеть', 'Изменено', 'Сбросить', 'Настройки недоступны: DSH сейчас не отдаёт их этому окну.', 'Настройки этого профиля доступны только для чтения.', 'Не удалось сохранить. Попробуйте ещё раз.', 'Сохранить', 'Сохраняю…'],
+      en: ['Name in the greeting', 'Leave empty to greet without a name.', 'For example, Alex', '40 characters at most', 'Preview', 'Changed', 'Reset', 'Settings are unavailable: DSH is not serving them to this window.', 'This profile’s settings are read-only.', 'Could not save. Try again.', 'Save', 'Saving…'],
+      zh: ['问候中的名字', '留空则不带名字问候。', '例如 Alex', '最多 40 个字符', '预览', '已修改', '重置', '设置不可用：DSH 当前未向此窗口提供设置。', '此配置文件的设置为只读。', '保存失败，请重试。', '保存', '正在保存…'],
+      ja: ['あいさつに使う名前', '空欄にすると名前なしであいさつします。', '例: Alex', '40 文字以内', 'プレビュー', '変更済み', 'リセット', '設定を利用できません。DSH がこのウィンドウに設定を提供していません。', 'このプロファイルの設定は読み取り専用です。', '保存できませんでした。もう一度お試しください。', '保存', '保存中…'],
+      es: ['Nombre en el saludo', 'Déjalo vacío para saludar sin nombre.', 'Por ejemplo, Alex', '40 caracteres como máximo', 'Vista previa', 'Modificado', 'Restablecer', 'La configuración no está disponible: DSH no la está sirviendo a esta ventana.', 'La configuración de este perfil es de solo lectura.', 'No se pudo guardar. Inténtalo de nuevo.', 'Guardar', 'Guardando…'],
+      fr: ['Nom dans le message d’accueil', 'Laissez vide pour un accueil sans nom.', 'Par exemple, Alex', '40 caractères maximum', 'Aperçu', 'Modifié', 'Réinitialiser', 'Réglages indisponibles : DSH ne les fournit pas à cette fenêtre.', 'Les réglages de ce profil sont en lecture seule.', 'Échec de l’enregistrement. Réessayez.', 'Enregistrer', 'Enregistrement…'],
+      de: ['Name in der Begrüßung', 'Leer lassen für eine Begrüßung ohne Namen.', 'Zum Beispiel Alex', 'Höchstens 40 Zeichen', 'Vorschau', 'Geändert', 'Zurücksetzen', 'Einstellungen nicht verfügbar: DSH stellt sie diesem Fenster nicht bereit.', 'Die Einstellungen dieses Profils sind schreibgeschützt.', 'Speichern fehlgeschlagen. Bitte erneut versuchen.', 'Speichern', 'Wird gespeichert…'],
+      pt: ['Nome na saudação', 'Deixe vazio para saudar sem nome.', 'Por exemplo, Alex', 'No máximo 40 caracteres', 'Prévia', 'Alterado', 'Redefinir', 'Configurações indisponíveis: o DSH não as está fornecendo a esta janela.', 'As configurações deste perfil são somente leitura.', 'Não foi possível salvar. Tente novamente.', 'Salvar', 'Salvando…'],
+    };
+    const settingsKeys = ['label', 'hint', 'placeholder', 'invalid', 'preview', 'overridden', 'reset', 'unavailable', 'readOnly', 'saveFailed', 'save', 'saving'];
+    for (const [lang, copy] of Object.entries(settings)) {
+      settingsKeys.forEach((key, index) => { dictionaries[lang]['settings.' + key] = copy[index]; });
+    }
     const greeting = (t, key, name) => name ? t(key).replace('{name}', name) : t(key + '.plain');
+    // Same cleaning as the Host, so the preview shows exactly what will be stored.
+    const MAX_NAME = 40;
+    const cleanName = text => String(text).replace(/[\x00-\x1f\x7f]/g, '').replace(/\s+/g, ' ').trim();
+    const nameField = {
+      field: 'name',
+      format: value => typeof value === 'string' ? value : '',
+      parse: text => {
+        const value = cleanName(text);
+        if (value === '') return { kind: 'clear' };
+        return value.length > MAX_NAME ? undefined : { kind: 'set', value };
+      },
+    };
+    let ui = null;
+    try { ui = require('@deepseek-ai/dsh-client-ui-primitives'); } catch { ui = null; }
+    // Host components may be forwardRef/memo objects, not functions.
+    const component = value => typeof value === 'function' || (typeof value === 'object' && value !== null);
+    const settingsSupported = Boolean(ui && typeof ui.SettingsFormModel === 'function'
+      && component(ui.SettingsForm) && component(ui.SettingsValueField));
+
+    function WelcomeSettings({ t, view, useWelcomeSettings, edit, resetField, save, discard }) {
+      if (view === 'summary' || !useWelcomeSettings || !edit) return null;
+      const state = useWelcomeSettings(snapshot => snapshot);
+      const field = state.field;
+      const preview = field.invalid ? '' : greeting(t, 'return', cleanName(field.text));
+      return React.createElement(ui.SettingsForm, {
+        labels: { unavailable: t('settings.unavailable'), readOnly: t('settings.readOnly'), saveFailed: t('settings.saveFailed'), save: t('settings.save'), saving: t('settings.saving') },
+        state, onSave: save, onDiscard: discard,
+      },
+      React.createElement(ui.SettingsValueField, {
+        id: 'dsh-welcome-name', label: t('settings.label'), hint: t('settings.hint'), placeholder: t('settings.placeholder'),
+        text: field.text, overridden: field.overridden, invalid: field.invalid,
+        overriddenLabel: t('settings.overridden'), resetLabel: t('settings.reset'), invalidLabel: t('settings.invalid'),
+        disabled: !state.writable || state.saving,
+        onEdit: text => edit('name', text), onReset: () => resetField('name'),
+      }),
+      preview ? React.createElement('p', { 'data-dsh-welcome-preview': '', style: { margin: '4px 0 0', fontSize: 13, opacity: 0.72 } }, `${t('settings.preview')}: ${preview}`) : null);
+    }
     // The headline and Preview badge are hidden only while this component is mounted.
     // These selectors follow the Harness 0.2.2 hero markup and may need updating after a redesign.
     const css = `
@@ -75,9 +127,8 @@ window.__ModuleLoader__.load({
     return {
       inject: ['slots', 'locale', 'connection'],
       apply(ctx) {
-        // The name lives in the Host config; it is read once per page and shared by every mount.
-        let loaded;
-        const loadName = () => loaded ??= ctx.connection.rpc.call('/api', 'dsh-welcome/config', {})
+        // The name lives in the Host config and can change from the Plugins page, so every mount asks again.
+        const loadName = () => ctx.connection.rpc.call('/api', 'dsh-welcome/config', {})
           .then(result => result?.ok && typeof result.value?.name === 'string' ? result.value.name : '', () => '');
         function Welcome({ t }) {
           const [key] = React.useState(() => keys[Math.floor(Math.random() * keys.length)]);
@@ -97,6 +148,20 @@ window.__ModuleLoader__.load({
         ctx.slots.inject('conversation.hero.brand.mark', () => ctx.slots.register({
           name: 'conversation.hero.brand.mark', priority: -100, locale: 'dsh-welcome',
         }, Welcome));
+        // The settings card is optional: without the settings service or these primitives the greeting still works.
+        if (!settingsSupported || typeof ctx.inject !== 'function') return;
+        ctx.inject(['slots', 'configForms'], scope => {
+          try { registerSettings(scope); } catch (error) { console.warn('[dsh-welcome] settings card unavailable:', error); }
+        });
+        function registerSettings(scope) {
+          const model = new ui.SettingsFormModel(scope.configForms.get('dsh-welcome'), [nameField]);
+          scope.effect(() => () => model.dispose());
+          const store = model.bind(() => ({ ...model.shell(), field: model.field('name') }));
+          scope.effect(() => scope.configForms.whileServed(['dsh-welcome'], () => scope.slots.inject('plugins.bundle.config', () => scope.slots.register({
+            name: 'plugins.bundle.config', key: 'dsh-welcome', locale: 'dsh-welcome',
+            inject: () => ({ hooks: { welcomeSettings: store }, ...model.actions() }),
+          }, WelcomeSettings))));
+        }
       },
     };
   },
