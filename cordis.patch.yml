@@ -1,7 +1,4 @@
-# Set your name in the profile's cordis.patch.yml instead of here, so updates keep it:
-#   - id: dsh-welcome
-#     config:
-#       name: Alex
+# The name is edited on the plugin's page under Plugins; DSH saves it in the profile, not here.
 - insert:
     - id: dsh-welcome
       name: dsh-welcome

@@ -1,20 +1,11 @@
-export const name = 'dsh-welcome';
-export const inject = ['connection'];
+import Schema from '@deepseek-ai/schemastery';
 
-export function cleanName(value) {
-  if (typeof value !== 'string') return '';
-  return value.replace(/[\x00-\x1f\x7f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
-}
+export { name, inject, apply } from './host.js';
 
-// The browser half asks for the configured name once per page.
-export function apply(ctx, config = {}) {
-  const value = { name: cleanName(config?.name) };
-  ctx.effect(() => ctx.connection.fetch.register({
-    path: '/api/dsh-welcome/config', methods: ['POST'], requestBody: 'buffered',
-    async fetch(request) {
-      let body;
-      try { body = await request.json(); } catch { body = null; }
-      return Response.json({ type: 'server-response', rpcId: body?.rpcId ?? null, result: { ok: true, value } });
-    },
-  }));
-}
+// .volatile() is what lets the Plugins page edit a field and apply it without a restart.
+// It exists from schemastery 3.18.3; an older host keeps the value static instead of failing to load.
+const live = schema => typeof schema.volatile === 'function' ? schema.volatile() : schema;
+
+export const Config = Schema.object({
+  name: live(Schema.string().default('').description('Name used in the greeting. Leave empty for greetings without a name.')),
+});

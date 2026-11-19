@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { apply, cleanName } from '../index.js';
+import { apply, cleanName } from '../host.js';
 
 const source = readFileSync(new URL('../client.js', import.meta.url), 'utf8');
 
