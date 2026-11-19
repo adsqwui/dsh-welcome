@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/adsqwui/dsh-welcome/actions/workflows/test.yml"><img alt="tests" src="https://github.com/adsqwui/dsh-welcome/actions/workflows/test.yml/badge.svg"></a>
+  <a href="https://www.npmjs.com/package/@adsqwui/dsh-welcome"><img alt="npm" src="https://img.shields.io/npm/v/%40adsqwui%2Fdsh-welcome?color=cb3837&logo=npm"></a>
   <img alt="DeepSeek Harness 0.2.x" src="https://img.shields.io/badge/DeepSeek%20Harness-0.2.x-4d6bfe">
   <img alt="8 languages" src="https://img.shields.io/badge/languages-8-ff9f43">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-0-blue">
@@ -32,11 +33,15 @@
 
 ## Install
 
-```bash
-git clone https://github.com/adsqwui/dsh-welcome.git
+In DSH open **Plugins → Add plugin**, enter the package name, install and enable it:
+
+```text
+@adsqwui/dsh-welcome
 ```
 
-In DSH open **Plugins → Add plugin**, enter the absolute path of the cloned folder, install and enable it. To update later, `git pull` in the folder and restart Desktop.
+From a terminal the same is `dsh plugin --profile <profile> add @adsqwui/dsh-welcome`.
+
+To work on the code instead, clone the repository and give **Add plugin** the absolute path of the folder. DSH links to it, so `git pull` and a restart are all an update takes.
 
 ## Set your name
 
@@ -52,7 +57,7 @@ DSH stores the value in your profile's `cordis.patch.yml` (on macOS Desktop: `~/
 
 ```yaml
 - id: dsh-welcome
-  name: dsh-welcome
+  name: '@adsqwui/dsh-welcome'
   config:
     name: Alex
 ```
